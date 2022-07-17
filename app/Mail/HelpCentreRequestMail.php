@@ -1,0 +1,41 @@
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+
+class HelpCentreRequestMail extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $helpCentreRequest;
+    public $company;
+
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct($helpCentreRequest, $company)
+    {
+        $this->helpCentreRequest = $helpCentreRequest;
+        $this->company = $company;
+    }
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+        $fromEmail = 'info@' . config('services.site.domain');
+        $siteName = config('services.site.name');
+
+        return $this->from($fromEmail, $siteName)
+            ->view('emails.help-centre-request')->subject('Website help centre contact request - ' . config('services.site.name'));
+    }
+}

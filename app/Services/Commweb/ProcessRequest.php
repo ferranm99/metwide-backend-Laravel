@@ -1,0 +1,98 @@
+<?php
+
+namespace App\Services\Commweb;
+
+/**
+ * An abstract class to process existing transactions
+ */
+abstract class ProcessRequestAbstract extends RequestAbstract {
+
+	/**
+     * @var Transaction Old transaction data
+     */
+	private $oldTransaction;
+
+	/**
+	 * Sets old transaction for request to process
+	 *
+	 * @param Transaction $oldTransaction
+	 *
+	 * @return ProcessRequestAbstract
+	 */
+	public function setOldTransaction(Transaction $oldTransaction) {
+
+		$this->oldTransaction = $oldTransaction;
+
+		return $this;
+	}
+
+	/**
+	 * Gets old transaction for request to process
+	 *
+	 * @return Transaction
+	 */
+	public function getOldTransaction() {
+
+		return $this->oldTransaction;
+	}
+
+	/**
+	 * Specifies what has to be returned on serialization to json
+	 *
+	 * @return array Data to serialize
+	 */
+	public function jsonSerialize() {
+
+		return [
+			"apiOperation" => $this->apiOperation,
+			"transaction" => $this->oldTransaction
+		];
+	}
+}
+
+/**
+ * Class to capture the transaction
+ */
+class CaptureRequest extends ProcessRequestAbstract {
+
+	protected $apiOperation = 'CAPTURE';
+}
+
+/**
+ * Class to refund the transaction
+ */
+class RefundRequest extends ProcessRequestAbstract {
+
+	protected $apiOperation = 'REFUND';
+}
+
+/**
+ * Class to update autorization transaction
+ */
+class UpdateAutorizationRequest extends ProcessRequestAbstract {
+
+	protected $apiOperation = 'UPDATE_AUTHORIZATION';
+}
+
+/**
+ * Class to void the transaction
+ */
+class VoidRequest extends ProcessRequestAbstract {
+
+	protected $apiOperation = 'VOID';
+
+	/**
+	 * Specifies what has to be returned on serialization to json
+	 *
+	 * @return array Data to serialize
+	 */
+	public function jsonSerialize() {
+
+		return [
+			"apiOperation" => $this->apiOperation,
+			"transaction" => [
+				"targetTransactionId" => $this->getOldTransaction()->getId()
+			]
+		];
+	}
+}
